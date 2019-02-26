@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <h3 style="font-weight:bold; text-align:center;">DOM Info</h3>
+    <table id="tableId" border="1">
+        <tr id="first-row">
+            <td>ONE</td>
+            <td>TWO</td>
+            <td>THREE</td>
+        </tr>
+        <tr id="second-row">
+            <td>FOUR</td>
+            <td>FIVE</td>
+            <td>SIX</td>
+        </tr>
+        <tr id="third-row">
+            <td>SEVEN</td>
+            <td>EIGHT</td>
+            <td>NINE</td>
+        </tr>
+    </table>
+    <button id="theButton">Click me</button>
+    <script>
+	    function addRowHandlers() {
+        var table = document.getElementById("tableId");
+        var rows = table.getElementsByTagName("tr");
+        for (i = 0; i < rows.length; i++) {
+          var currentRow = table.rows[i];
+          var createClickHandler = function(row)
+              { return function() {};};
+
+          currentRow.onclick = createClickHandler(currentRow);
+      }
+      }
+      window.onload = addRowHandlers();
+   </script>
+  </body>
+</html>

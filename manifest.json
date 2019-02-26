@@ -1,0 +1,25 @@
+{
+  "manifest_version": 2,
+
+  "name": "Lightbox Extension",
+  "description": "We're going to make a lightbox when someone clicks a context menu item.",
+  "version": "1.0",
+  
+  "permissions": [
+	"contextMenus",
+        "<all_urls>",
+        "tabs"
+  ],
+  "background": {
+    "scripts": ["context-menu.js"]
+  },
+   "content_scripts": [
+   {
+     "matches": ["<all_urls>"],
+     "js": ["lightbox.js"],
+     "css": ["lightbox.css"],
+     "all_frames": false
+   }
+ ]
+  
+}
