@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(function() {
     chrome.contextMenus.create({
-        "title": "View in Lightbox",
-         "contexts":["page"],
+        "title": "View in EC lite",
+         "contexts":["page","browser_action"],
          "id": "ViewInLightbox"
     });
 });

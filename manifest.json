@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
 
-  "name": "Lightbox Extension",
+  "name": "EC lite",
   "description": "We're going to make a lightbox when someone clicks a context menu item.",
   "version": "1.0",
   

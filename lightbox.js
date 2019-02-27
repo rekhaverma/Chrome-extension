@@ -9,7 +9,8 @@ const markup = function(tableConfig) {
     <p class="fields">First Name:<span>${tableConfig.first_name || 'N/A'}</span></p>
     <p class="fields">Last Name: <span>${tableConfig.last_name || 'N/A'}</span></p>
     <p class="fields">Phone: <span>${tableConfig.phone || 'N/A'}</span></p>
-    <div style="float: right;"><a id="send-details" class="send-button">Send</a></div>
+    <div"><a id="send-details" class="send-button">Send</a></div>
+    <div id="result-div"></div>
   </div>
   `
 };
@@ -21,40 +22,63 @@ const closeScriptureLightbox = function() {
 let clickedEl = null;
 
 function doApiCall() {
+  let userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  console.log("111111111111",userInfo);
+  // request payload
+  let jsonBody = {};
   var http = new XMLHttpRequest();
   var url = 'https://qa2-ms-api.mpulsemobile.com/accounts/1095/members';
-  var params = {
-      "body": {
-          "member": {
-          "mobilephone":"7876514555",
-           "email":"bhuwan.jain@quovantis.com"
-          },
-      "listid": "4607"
-      }
-  };
+  let memberObj = {member: {}};
+  if(userInfo.phone) {
+    memberObj.member['mobilephone'] = userInfo.phone;
+  }
+  if(userInfo.last_name) {
+    memberObj.member['last_name'] = userInfo.last_name;
+  }
+  if(userInfo.email) {
+    memberObj.member['email'] = userInfo.email;
+  }
+  if(userInfo.first_name) {
+    memberObj.member['first_name'] = userInfo.first_name;
+  }
+  if(userInfo.appMemberId) {
+    memberObj.member['appMemberId'] = userInfo.appMemberId;
+  }
+  if(userInfo.clientMemId) {
+    memberObj.member['clientMemId'] = userInfo.clientMemId;
+  }
+  jsonBody.body = memberObj;
+  jsonBody.body.listid = "4607";
   http.open('POST', url, true);
 
   //Send the proper header information along with the request
   http.setRequestHeader('X-Ms-Format', 'json');
   http.setRequestHeader('X-Ms-Source', 'api');
   http.setRequestHeader('X-Ms-Audience-Update', 'upsert');
+  http.setRequestHeader('X-Ms-Force-Subscribe-Member', 'true')
   http.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
-
+  // Handle basic auth and set in headers
   let userCredentials = "sanjeev-appmail:egRu%WKLN9S8w7!2";
   let basicAuth = "Basic " + btoa(userCredentials);
   http.setRequestHeader ("Authorization", basicAuth);
 
-  http.onreadystatechange = function() {//Call a function when the state changes.
-      if(http.readyState == 4 && http.status == 200) {
-          alert(http.responseText);
+  //Call a function when the state changes.
+  http.onreadystatechange = function() {
+    let element = document.getElementById("result-div");  
+    if(http.readyState == 4 && http.status == 200) {
+          console.log(http.responseText);
+          element.innerText = "Successfully added";
+      } else {
+        element.innerText = "Something went wrong!!!";
       }
   }
-  http.send(JSON.stringify(params));
+  http.send(JSON.stringify(jsonBody));
 }
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
+    console.log("111111111111",sender)
     let elementFound = document.getElementById('lightbox_extension');
     if ( request.action == "startLightbox" && !elementFound) {
         background = document.createElement('div');
@@ -71,11 +95,6 @@ chrome.runtime.onMessage.addListener(
         let table = document.createElement('div');
         table.id = "light_box_table";
         lightbox.appendChild(table);
-        var link = document.getElementsByClassName('send-button');
-        // onClick's logic below:
-        link.addEventListener('click', function() {
-            console.log("clicked")
-        });
         sendResponse({farewell: "goodbye"});
     }
   });
@@ -112,14 +131,9 @@ document.getElementById("members").onclick = function() {
   var target = event.target;
   if (target.tagName == 'TD' || target.tagName == 'TR') {    
     document.getElementById('light_box_table').innerHTML = markup(tableConfig);
+    localStorage.setItem('userInfo', JSON.stringify(tableConfig));
     document.getElementById('send-details').onclick = function() {
       doApiCall();
     }
   }
 }
-
-// chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-//   if(request == "getClickedEl") {
-//       sendResponse({value: clickedEl.value});
-//   }
-// });
