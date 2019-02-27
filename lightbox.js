@@ -42,7 +42,7 @@ function doApiCall() {
     memberObj.member['firstname'] = userInfo.first_name;
   }
   if(userInfo.appMemberId) {
-    memberObj.member['appmemberId'] = userInfo.appMemberId;
+    memberObj.member['appmemberid'] = userInfo.appMemberId;
   }
   if(userInfo.clientMemId) {
     memberObj.member['clientmemberid'] = userInfo.clientMemId;
