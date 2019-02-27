@@ -18,3 +18,9 @@ function contextClicked(info, tab) {
 
 //Instruct Chrome to launch a particular function when context menu items are clicked.
 chrome.contextMenus.onClicked.addListener(contextClicked);
+// Open popup on click of chrome extension icon
+chrome.browserAction.onClicked.addListener(function() {
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {"action": "startLightbox"});
+    });
+});
