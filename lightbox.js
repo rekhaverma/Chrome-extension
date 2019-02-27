@@ -33,19 +33,19 @@ function doApiCall() {
     memberObj.member['mobilephone'] = userInfo.phone;
   }
   if(userInfo.last_name) {
-    memberObj.member['last_name'] = userInfo.last_name;
+    memberObj.member['lastname'] = userInfo.last_name;
   }
   if(userInfo.email) {
     memberObj.member['email'] = userInfo.email;
   }
   if(userInfo.first_name) {
-    memberObj.member['first_name'] = userInfo.first_name;
+    memberObj.member['firstname'] = userInfo.first_name;
   }
   if(userInfo.appMemberId) {
-    memberObj.member['appMemberId'] = userInfo.appMemberId;
+    memberObj.member['appmemberId'] = userInfo.appMemberId;
   }
   if(userInfo.clientMemId) {
-    memberObj.member['clientMemId'] = userInfo.clientMemId;
+    memberObj.member['clientmemberid'] = userInfo.clientMemId;
   }
   jsonBody.body = memberObj;
   jsonBody.body.listid = "4607";
