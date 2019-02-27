@@ -9,7 +9,7 @@ const markup = function(tableConfig) {
     <p class="fields">First Name:<span>${tableConfig.first_name || 'N/A'}</span></p>
     <p class="fields">Last Name: <span>${tableConfig.last_name || 'N/A'}</span></p>
     <p class="fields">Phone: <span>${tableConfig.phone || 'N/A'}</span></p>
-    <div"><a id="send-details" class="send-button">Send</a></div>
+    <div"><a id="send-details" class="send-button">Add Member</a></div>
     <div id="result-div"></div>
   </div>
   `

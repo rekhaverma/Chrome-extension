@@ -19,7 +19,7 @@
     right: 0;
     top: 26%;
     background: white;
-    
+    position: fixed;
 }
 
 /* The Close Button */
