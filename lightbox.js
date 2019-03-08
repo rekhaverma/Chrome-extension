@@ -48,10 +48,13 @@ function checkForEmptyKey () {
   }
   return emptyKeyFound;
 }
+function doSomething() {
+  alert('Form submitted!');
+  return false;
+}
 const formWizard = function() {
   return `
       <form id="regForm">
-      <h1>Step 1:</h1>
       <!-- One "tab" for each step in the form: -->
       <div class="tab">
         <p>Please select first name:</p>
@@ -84,7 +87,8 @@ const formWizard = function() {
         </div>
       </div>
       <!-- Circles which indicates the steps of the form: -->
-      <div style="text-align:center;margin-top:40px;">
+      <div id="steps" style="text-align:center;margin-top:40px;">
+        <span class="step"></span>
         <span class="step"></span>
         <span class="step"></span>
         <span class="step"></span>
@@ -117,6 +121,7 @@ function showTab(n) {
 function fixStepIndicator(n) {
   // This function removes the "active" class of all steps...
   var i, x = document.getElementsByClassName("step");
+  console.log("nnnnnnnnnnnnnnnnn",x.length,n)
   for (i = 0; i < x.length; i++) {
     x[i].className = x[i].className.replace(" active", "");
   }
@@ -226,11 +231,6 @@ chrome.runtime.onMessage.addListener(
         let table = document.createElement('div');
         table.id = "light_box_table";
         lightbox.appendChild(table);
-        let settingsButton = document.createElement('button');
-        settingsButton.id = "settings";
-        var textNode = document.createTextNode("Settings");
-        settingsButton.appendChild(textNode);
-        lightbox.appendChild(settingsButton);
         // if onboarding done.
         // Check boarding json in local storage to determine if boarding page needs to show.
         // othewise show boarding page
@@ -241,7 +241,6 @@ chrome.runtime.onMessage.addListener(
           var deleteLink = document.querySelectorAll('.goToStep');
           for (var i = 0; i < deleteLink.length; i++) {
               deleteLink[i].addEventListener('click', function(event) {
-                  console.log("qwerty----------->",event.target);
                   let n;
                   if(event.target.id === "nextBtn") {
                     n = 1;
@@ -256,10 +255,17 @@ chrome.runtime.onMessage.addListener(
                   x[currentTab].style.display = "none";
                   // Increase or decrease the current tab by 1:
                   currentTab = currentTab + n;
+                  console.log("----------------------",currentTab);
+                  console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXX",x.length);
                   // if you have reached the end of the form...
                   if (currentTab >= x.length) {
                     // ... the form gets submitted:
-                    document.getElementById("regForm").submit();
+                    let sessionData = sessionStorage.getItem('settingsData');
+                    localStorage.setItem('onboardingData',sessionData);
+                    document.getElementById('prevBtn').style.display="none";
+                    document.getElementById("nextBtn").style.display="none";
+                    document.getElementById("steps").style.display ="none";
+                    document.getElementById('light_box_table').innerHTML = "<div>Your onboarding is complete. Please select rows from table now.</div>";
                     return false;
                   }
                   // Otherwise, display the correct tab:
@@ -268,6 +274,11 @@ chrome.runtime.onMessage.addListener(
           }
         } else {
           // Show settings icon.
+          let settingsButton = document.createElement('button');
+          settingsButton.id = "settings";
+          var textNode = document.createTextNode("Settings");
+          settingsButton.appendChild(textNode);
+          lightbox.appendChild(settingsButton);
           document.getElementById('settings').onclick = function() {
             // document.getElementById('settings').style.display = "none";
             let onboardingData = JSON.parse(localStorage.getItem('onboardingData'));
@@ -292,7 +303,7 @@ document.getElementById("members").onclick = function() {
     if (event.target.tagName == 'TD') {
       let className = event.target.className || "";
       currentInput[0].setAttribute("value",className);
-      let onboardingData = JSON.parse(localStorage.getItem('onboardingData')) || {};
+      let onboardingData = JSON.parse(sessionStorage.getItem('settingsData')) || {};
       switch(currentTab) {
         case 0:
           // code block
@@ -323,9 +334,20 @@ document.getElementById("members").onclick = function() {
       }
       console.log("currentTab",currentTab)
       console.log(onboardingData,'onboardingData')
-      localStorage.setItem('onboardingData', JSON.stringify(onboardingData));
+      sessionStorage.setItem('settingsData', JSON.stringify(onboardingData));
     }
   } else {
+    // Show settings icon.
+    let settingsButton = document.createElement('button');
+    settingsButton.id = "settings";
+    var textNode = document.createTextNode("Settings");
+    settingsButton.appendChild(textNode);
+    lightbox.appendChild(settingsButton);
+    document.getElementById('settings').onclick = function() {
+      // document.getElementById('settings').style.display = "none";
+      let onboardingData = JSON.parse(localStorage.getItem('onboardingData'));
+      document.getElementById('light_box_table').innerHTML = settingsMarkup(onboardingData);
+    }
     clickedEl = event.target.parentNode;
     let elementId = clickedEl.id;
     let element = document.getElementById(`${elementId}`);
