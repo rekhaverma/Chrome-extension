@@ -18,8 +18,8 @@
     background: white;
     position: fixed;
     padding: 19px;
-    width: 72%;
-    height: 58%;
+    width: 50%;
+    height: 55%;
 }
 
 /* The Close Button */
@@ -79,10 +79,10 @@
   
   #regForm {
     background-color: #ffffff;
-    margin: 100px auto;
+    margin: 0;
     font-family: Raleway;
     padding: 40px;
-    width: 70%;
+    width: 100%;
     min-width: 300px;
   }
   
@@ -145,5 +145,36 @@
   /* Mark the steps that are finished and valid: */
   .step.finish {
     background-color: #444857;
+  }
+  .welcomeForm {
+    margin: auto;
+    text-align: center;
+    padding: 16%;
+  }
+  #startOnboarding {
+    font-size: 1rem;
+    /* text-shadow: none; */
+    line-height: 1.2;
+    display: inline-block;
+    padding: 10px 16px;
+    /* margin: 0 10px 0 0; */
+    position: relative;
+    border-radius: 4px;
+    /* border: 3px solid transparent; */
+    background: #444857;
+    color: white;
+    cursor: pointer;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-decoration: none !important;
+    text-align: center;
+    font-weight: normal !important;
+    margin-top: 10px;
+  }
+  #settings {
+    position: absolute;
+    top: 20px;
+    right: 51px;
+    cursor: pointer;
   }
   

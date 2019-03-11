@@ -81,7 +81,7 @@ const formWizard = function() {
         <p><input placeholder="ClientMemberId..." oninput="this.className = ''" name="ClientMemberId" readonly></p>
       </div>
       <div style="overflow:auto;">
-        <div style="float:right;">
+        <div style="float:right;margin: 15px;">
           <button type="button" id="prevBtn" class="goToStep">Previous</button>
           <button type="button" id="nextBtn" class="goToStep">Next</button>
         </div>
@@ -121,7 +121,6 @@ function showTab(n) {
 function fixStepIndicator(n) {
   // This function removes the "active" class of all steps...
   var i, x = document.getElementsByClassName("step");
-  console.log("nnnnnnnnnnnnnnnnn",x.length,n)
   for (i = 0; i < x.length; i++) {
     x[i].className = x[i].className.replace(" active", "");
   }
@@ -138,7 +137,6 @@ let currentTab = 0; // Current tab is set to be the first tab (0)
 
 function doApiCall() {
   let userInfo = JSON.parse(localStorage.getItem('userInfo'));
-  console.log("111111111111",userInfo);
   // request payload
   let jsonBody = {};
   var http = new XMLHttpRequest();
@@ -182,8 +180,7 @@ function doApiCall() {
   http.onreadystatechange = function() {
     let element = document.getElementById("result-div");  
     if(http.readyState == 4 && http.status == 200) {
-          console.log(http.responseText);
-          element.innerText = "Successfully added";
+        element.innerText = "Successfully added";
       } else {
         element.innerText = "Something went wrong!!!";
       }
@@ -212,9 +209,31 @@ function validateForm() {
   return valid; // return the valid status
 }
 
+function welcomeForm() {
+  return `
+  <div class="welcomeForm">
+    <div>Welcome to EC lite!</div>
+    <div>Click start for onboarding process</div>
+    <a id="startOnboarding">Start</a>
+  </div>
+  `
+}
+
+function showSettingsMarkup() {
+  let settingsButton = document.createElement('a');
+  settingsButton.id = "settings";
+  settingsButton.innerHTML = "Settings";
+  let lightbox = document.getElementById('lightbox_extension');
+  lightbox.appendChild(settingsButton);
+  document.getElementById('settings').onclick = function() {
+    // document.getElementById('settings').style.display = "none";
+    let onboardingData = JSON.parse(localStorage.getItem('onboardingData'));
+    document.getElementById('light_box_table').innerHTML = settingsMarkup(onboardingData);
+  }
+}
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
-    console.log("111111111111",sender)
     let elementFound = document.getElementById('lightbox_extension');
     if ( request.action == "startLightbox" && !elementFound) {
         background = document.createElement('div');
@@ -236,117 +255,91 @@ chrome.runtime.onMessage.addListener(
         // othewise show boarding page
         let emptyKeyFound = checkForEmptyKey();
         if(emptyKeyFound) {
-          document.getElementById('light_box_table').innerHTML = formWizard();
-          showTab(currentTab); 
-          var deleteLink = document.querySelectorAll('.goToStep');
-          for (var i = 0; i < deleteLink.length; i++) {
-              deleteLink[i].addEventListener('click', function(event) {
-                  let n;
-                  if(event.target.id === "nextBtn") {
-                    n = 1;
-                  } else {
-                    n = -1;
-                  }
-                  // This function will figure out which tab to display
-                  var x = document.getElementsByClassName("tab");
-                  // Exit the function if any field in the current tab is invalid:
-                  if (n == 1 && !validateForm()) return false;
-                  // Hide the current tab:
-                  x[currentTab].style.display = "none";
-                  // Increase or decrease the current tab by 1:
-                  currentTab = currentTab + n;
-                  console.log("----------------------",currentTab);
-                  console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXX",x.length);
-                  // if you have reached the end of the form...
-                  if (currentTab >= x.length) {
-                    // ... the form gets submitted:
-                    let sessionData = sessionStorage.getItem('settingsData');
-                    localStorage.setItem('onboardingData',sessionData);
-                    document.getElementById('prevBtn').style.display="none";
-                    document.getElementById("nextBtn").style.display="none";
-                    document.getElementById("steps").style.display ="none";
-                    document.getElementById('light_box_table').innerHTML = "<div>Your onboarding is complete. Please select rows from table now.</div>";
-                    return false;
-                  }
-                  // Otherwise, display the correct tab:
-                  showTab(currentTab);
-              });
+          document.getElementById('light_box_table').innerHTML = welcomeForm();
+          document.getElementById('startOnboarding').onclick = function() {
+            document.getElementById('light_box_table').innerHTML = formWizard();
+            showTab(currentTab);
+            var deleteLink = document.querySelectorAll('.goToStep');
+            for (var i = 0; i < deleteLink.length; i++) {
+                deleteLink[i].addEventListener('click', function(event) {
+                    let n;
+                    if(event.target.id === "nextBtn") {
+                      n = 1;
+                    } else {
+                      n = -1;
+                    }
+                    // This function will figure out which tab to display
+                    var x = document.getElementsByClassName("tab");
+                    // Exit the function if any field in the current tab is invalid:
+                    if (n == 1 && !validateForm()) return false;
+                    // Hide the current tab:
+                    x[currentTab].style.display = "none";
+                    // Increase or decrease the current tab by 1:
+                    currentTab = currentTab + n;
+                    // if you have reached the end of the form...
+                    if (currentTab >= x.length) {
+                      // ... the form gets submitted:
+                      let sessionData = sessionStorage.getItem('settingsData');
+                      localStorage.setItem('onboardingData',sessionData);
+                      document.getElementById('prevBtn').style.display="none";
+                      document.getElementById("nextBtn").style.display="none";
+                      document.getElementById("steps").style.display ="none";
+                      showSettingsMarkup();
+                      document.getElementById('light_box_table').innerHTML = `<div style="text-align:center;padding: 19%;">Your onboarding is complete. Please select rows from table now.</div>`;
+                      return false;
+                    }
+                    // Otherwise, display the correct tab:
+                    showTab(currentTab);
+                });
+            }
           }
         } else {
           // Show settings icon.
-          let settingsButton = document.createElement('button');
-          settingsButton.id = "settings";
-          var textNode = document.createTextNode("Settings");
-          settingsButton.appendChild(textNode);
-          lightbox.appendChild(settingsButton);
-          document.getElementById('settings').onclick = function() {
-            // document.getElementById('settings').style.display = "none";
-            let onboardingData = JSON.parse(localStorage.getItem('onboardingData'));
-            document.getElementById('light_box_table').innerHTML = settingsMarkup(onboardingData);
-          }
+          showSettingsMarkup();
         }
         sendResponse({farewell: "goodbye"});
     }
 });
 
 document.getElementById("members").onclick = function() {
-  console.log("event.target",event.target);
-
   //right click
   let emptyKeyFound = checkForEmptyKey();
   if(emptyKeyFound) {
-    // document.getElementById('light_box_table').innerHTML = formWizard();
-    // showTab(currentTab);
     let currentTabScreen = document.getElementsByClassName("tab");
     let currentInput = currentTabScreen[currentTab].getElementsByTagName("input");
-    console.log("currentInput",event.target.parentNode,event.target);
     if (event.target.tagName == 'TD') {
       let className = event.target.className || "";
       currentInput[0].setAttribute("value",className);
       let onboardingData = JSON.parse(sessionStorage.getItem('settingsData')) || {};
       switch(currentTab) {
         case 0:
-          // code block
           onboardingData.firstName = className;
           break;
         case 1:
-          // code block
           onboardingData.lastName = className;
           break;
         case 2:
-          // code block
           onboardingData.email = className;
           break;
         case 3:
-          // code block
           onboardingData.phone = className;
           break;
         case 4:
-          // code block
           onboardingData.appMemberId = className;
           break;
         case 5:
-          // code block
           onboardingData.appClientId = className;
           break;
         default:
           // code block
       }
-      console.log("currentTab",currentTab)
-      console.log(onboardingData,'onboardingData')
       sessionStorage.setItem('settingsData', JSON.stringify(onboardingData));
     }
   } else {
-    // Show settings icon.
-    let settingsButton = document.createElement('button');
-    settingsButton.id = "settings";
-    var textNode = document.createTextNode("Settings");
-    settingsButton.appendChild(textNode);
-    lightbox.appendChild(settingsButton);
-    document.getElementById('settings').onclick = function() {
-      // document.getElementById('settings').style.display = "none";
-      let onboardingData = JSON.parse(localStorage.getItem('onboardingData'));
-      document.getElementById('light_box_table').innerHTML = settingsMarkup(onboardingData);
+    let settingsTabFound = document.getElementById('settings');
+    console.log("settingsTabFound--------->",settingsTabFound)
+    if(!settingsTabFound) {
+      showSettingsMarkup();
     }
     clickedEl = event.target.parentNode;
     let elementId = clickedEl.id;
