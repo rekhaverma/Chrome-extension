@@ -162,7 +162,7 @@ function doApiCall() {
   }
   jsonBody.body = memberObj;
   jsonBody.body.listid = "4607";
-  http.open('POST', url, true);
+  http.open('PUT', url, true);
 
   //Send the proper header information along with the request
   http.setRequestHeader('X-Ms-Format', 'json');
@@ -236,6 +236,8 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     let elementFound = document.getElementById('lightbox_extension');
     if ( request.action == "startLightbox" && !elementFound) {
+        // Reinitialize current tab;
+        currentTab = 0;
         background = document.createElement('div');
         background.id = "lightbox_background";
         lightbox = document.createElement('div');
