@@ -1,4 +1,6 @@
 
+let clickedEl = null;
+let currentTab = 0; // Current tab is set to be the first tab (0)
 const markup = function(tableConfig) {
   return `
   <div class="userDetails">
@@ -68,7 +70,7 @@ const formWizard = function() {
         <p>Please select Email</p>
         <p><input placeholder="Email..." oninput="this.className = ''" name="email" readonly></p>
       </div>
-      <div class="tab">Mobile:
+      <div class="tab">
         <p>Please select mobile</p>
         <p><input placeholder="Mobile..." oninput="this.className = ''" name="mobile" readonly></p>
       </div>
@@ -132,8 +134,6 @@ const closeScriptureLightbox = function() {
   var lb = document.getElementById('lightbox_background');
   lb.parentNode.removeChild( lb );
 }
-let clickedEl = null;
-let currentTab = 0; // Current tab is set to be the first tab (0)
 
 function doApiCall() {
   let userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -285,7 +285,7 @@ chrome.runtime.onMessage.addListener(
                       document.getElementById("nextBtn").style.display="none";
                       document.getElementById("steps").style.display ="none";
                       showSettingsMarkup();
-                      document.getElementById('light_box_table').innerHTML = `<div style="text-align:center;padding: 19%;">Your onboarding is complete. Please select rows from table now.</div>`;
+                      document.getElementById('light_box_table').innerHTML = `<div style="text-align:center;padding: 19%;">Your onboarding is complete &#127773;. Now you can start seeing rows here.</div>`;
                       return false;
                     }
                     // Otherwise, display the correct tab:
@@ -336,45 +336,45 @@ document.getElementById("members").onclick = function() {
       sessionStorage.setItem('settingsData', JSON.stringify(onboardingData));
     }
   } else {
-    let settingsTabFound = document.getElementById('settings');
-    console.log("settingsTabFound--------->",settingsTabFound)
-    if(!settingsTabFound) {
-      showSettingsMarkup();
-    }
-    clickedEl = event.target.parentNode;
-    let elementId = clickedEl.id;
-    let element = document.getElementById(`${elementId}`);
-    let cells = element && element.cells;
-    let tableConfig = {}
-    for (let item of cells) {
-      switch (item.getAttribute("class")) {
-        case 'first_name':
-          tableConfig['first_name'] = item.innerText;
-          break;
-        case 'last_name':
-          tableConfig['last_name'] = item.innerText;
-          break;
-        case 'email':
-          let email = item.getElementsByClassName("contact_info");
-          tableConfig['email'] = email && email[0].title;
-          break;
-        case 'phone':
-          tableConfig['phone'] = item.innerText;
-          break;
-        case 'clientMemId':
-          tableConfig['clientMemId'] = item.innerText;
-          break;
-        case 'appMemberId':
-          tableConfig['appMemberId'] = item.innerText;
+      let settingsTabFound = document.getElementById('settings');
+      console.log("settingsTabFound--------->",settingsTabFound)
+      if(!settingsTabFound) {
+        showSettingsMarkup();
       }
-  }
-  var target = event.target;
-  if (target.tagName == 'TD' || target.tagName == 'TR') {    
-    document.getElementById('light_box_table').innerHTML = markup(tableConfig);
-    localStorage.setItem('userInfo', JSON.stringify(tableConfig));
-    document.getElementById('send-details').onclick = function() {
-      doApiCall();
+      clickedEl = event.target.parentNode;
+      let elementId = clickedEl.id;
+      let element = document.getElementById(`${elementId}`);
+      let cells = element && element.cells;
+      let tableConfig = {}
+      for (let item of cells) {
+        switch (item.getAttribute("class")) {
+          case 'first_name':
+            tableConfig['first_name'] = item.innerText;
+            break;
+          case 'last_name':
+            tableConfig['last_name'] = item.innerText;
+            break;
+          case 'email':
+            let email = item.getElementsByClassName("contact_info");
+            tableConfig['email'] = email && email[0].title;
+            break;
+          case 'phone':
+            tableConfig['phone'] = item.innerText;
+            break;
+          case 'clientMemId':
+            tableConfig['clientMemId'] = item.innerText;
+            break;
+          case 'appMemberId':
+            tableConfig['appMemberId'] = item.innerText;
+        }
     }
-  }
+    var target = event.target;
+    if (target.tagName == 'TD' || target.tagName == 'TR') {    
+      document.getElementById('light_box_table').innerHTML = markup(tableConfig);
+      localStorage.setItem('userInfo', JSON.stringify(tableConfig));
+      document.getElementById('send-details').onclick = function() {
+        doApiCall();
+      }
+    }
   }
 }
