@@ -17,12 +17,12 @@
     "default_title": "Google Mail"
   },
   "background": {
-    "scripts": ["context-menu.js"]
+    "scripts": ["background.js"]
   },
    "content_scripts": [
    {
-     "matches": ["<all_urls>"],
-     "js": ["lightbox.js"],
+     "matches": ["https://qa2-apps.mpulsemobile.com/*"],
+     "js": ["contentscript.js"],
      "css": ["lightbox.css"],
      "all_frames": false
    }

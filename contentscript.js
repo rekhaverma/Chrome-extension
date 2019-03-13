@@ -50,10 +50,6 @@ function checkForEmptyKey () {
   }
   return emptyKeyFound;
 }
-function doSomething() {
-  alert('Form submitted!');
-  return false;
-}
 const formWizard = function() {
   return `
       <form id="regForm">
@@ -305,6 +301,7 @@ chrome.runtime.onMessage.addListener(
 
 document.getElementById("members").onclick = function() {
   //right click
+  console.log("444444444444444",this)
   let emptyKeyFound = checkForEmptyKey();
   if(emptyKeyFound) {
     let currentTabScreen = document.getElementsByClassName("tab");
