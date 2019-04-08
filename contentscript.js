@@ -2,19 +2,23 @@
 let clickedEl = null;
 let currentTab = 0; // Current tab is set to be the first tab (0)
 const markup = function(tableConfig) {
-  return `
-  <div class="userDetails">
-    <h1 style="margin-bottom: 19px;">User Details:</h1>
-    <p class="fields">AppMemberId: <span>${tableConfig.appMemberId || 'N/A'}</span></p>
-    <p class="fields">ClientMemberId: <span>${tableConfig.clientMemId || 'N/A'}</span></p>
-    <p class="fields">Email: <span>${tableConfig.email || 'N/A'}</span></p>
-    <p class="fields">First Name:<span>${tableConfig.first_name || 'N/A'}</span></p>
-    <p class="fields">Last Name: <span>${tableConfig.last_name || 'N/A'}</span></p>
-    <p class="fields">Phone: <span>${tableConfig.phone || 'N/A'}</span></p>
-    <div"><a id="send-details" class="send-button">Add Member</a></div>
-    <div id="result-div"></div>
-  </div>
-  `
+  console.log("tableConfig",tableConfig)
+  let tableConfigExist = Object.entries(tableConfig).length === 0 && tableConfig.constructor === Object
+  if(!tableConfigExist) {
+    return `
+      <div class="userDetails">
+        <h1 style="margin-bottom: 19px;">User Details:</h1>
+        <p class="fields">AppMemberId: <span>${tableConfig.appMemberId || 'N/A'}</span></p>
+        <p class="fields">ClientMemberId: <span>${tableConfig.clientMemId || 'N/A'}</span></p>
+        <p class="fields">Email: <span>${tableConfig.email || 'N/A'}</span></p>
+        <p class="fields">First Name:<span>${tableConfig.first_name || 'N/A'}</span></p>
+        <p class="fields">Last Name: <span>${tableConfig.last_name || 'N/A'}</span></p>
+        <p class="fields">Phone: <span>${tableConfig.phone || 'N/A'}</span></p>
+        <div"><a id="send-details" class="send-button">Add Member</a></div>
+        <div id="result-div"></div>
+      </div>
+    `
+  }
 };
 
 const settingsMarkup = function(tableConfig) {
@@ -298,82 +302,81 @@ chrome.runtime.onMessage.addListener(
         sendResponse({farewell: "goodbye"});
     }
 });
-
-document.getElementById("members").onclick = function() {
-  //right click
-  console.log("444444444444444",this)
-  let emptyKeyFound = checkForEmptyKey();
-  if(emptyKeyFound) {
-    let currentTabScreen = document.getElementsByClassName("tab");
-    let currentInput = currentTabScreen[currentTab].getElementsByTagName("input");
-    if (event.target.tagName == 'TD') {
-      let className = event.target.className || "";
-      currentInput[0].setAttribute("value",className);
-      let onboardingData = JSON.parse(sessionStorage.getItem('settingsData')) || {};
-      switch(currentTab) {
-        case 0:
-          onboardingData.firstName = className;
-          break;
-        case 1:
-          onboardingData.lastName = className;
-          break;
-        case 2:
-          onboardingData.email = className;
-          break;
-        case 3:
-          onboardingData.phone = className;
-          break;
-        case 4:
-          onboardingData.appMemberId = className;
-          break;
-        case 5:
-          onboardingData.appClientId = className;
-          break;
-        default:
-          // code block
-      }
-      sessionStorage.setItem('settingsData', JSON.stringify(onboardingData));
-    }
-  } else {
-      let settingsTabFound = document.getElementById('settings');
-      console.log("settingsTabFound--------->",settingsTabFound)
-      if(!settingsTabFound) {
-        showSettingsMarkup();
-      }
-      clickedEl = event.target.parentNode;
-      let elementId = clickedEl.id;
-      let element = document.getElementById(`${elementId}`);
-      let cells = element && element.cells;
-      let tableConfig = {}
-      for (let item of cells) {
-        switch (item.getAttribute("class")) {
-          case 'first_name':
-            tableConfig['first_name'] = item.innerText;
-            break;
-          case 'last_name':
-            tableConfig['last_name'] = item.innerText;
-            break;
-          case 'email':
-            let email = item.getElementsByClassName("contact_info");
-            tableConfig['email'] = email && email[0].title;
-            break;
-          case 'phone':
-            tableConfig['phone'] = item.innerText;
-            break;
-          case 'clientMemId':
-            tableConfig['clientMemId'] = item.innerText;
-            break;
-          case 'appMemberId':
-            tableConfig['appMemberId'] = item.innerText;
+document.addEventListener("click", function() {
+   let emptyKeyFound = checkForEmptyKey();
+   if(emptyKeyFound) {
+     let currentTabScreen = document.getElementsByClassName("tab");
+     let currentInput = currentTabScreen[currentTab].getElementsByTagName("input");
+     if (event.target.tagName == 'TD' || event.target.tagName == 'DIV') {
+       let className = event.target.className || "";
+       currentInput[0].setAttribute("value",className);
+       let onboardingData = JSON.parse(sessionStorage.getItem('settingsData')) || {};
+       switch(currentTab) {
+         case 0:
+           onboardingData.firstName = className;
+           break;
+         case 1:
+           onboardingData.lastName = className;
+           break;
+         case 2:
+           onboardingData.email = className;
+           break;
+         case 3:
+           onboardingData.phone = className;
+           break;
+         case 4:
+           onboardingData.appMemberId = className;
+           break;
+         case 5:
+           onboardingData.appClientId = className;
+           break;
+         default:
+           // code block
+       }
+       sessionStorage.setItem('settingsData', JSON.stringify(onboardingData));
+     }
+   } else {
+       let settingsTabFound = document.getElementById('settings');
+       console.log("settingsTabFound--------->",settingsTabFound)
+       if(!settingsTabFound) {
+         showSettingsMarkup();
+       }
+       clickedEl = event.target.parentNode;
+       let element = clickedEl;
+       let cells = element && element.cells || element.children;
+       let tableConfig = {}
+       for (let item of cells) {
+         switch (item.getAttribute("class")) {
+           case 'first_name':
+             tableConfig['first_name'] = event.target.innerText;
+             break;
+           case 'last_name':
+             tableConfig['last_name'] = event.target.innerText;
+             break;
+           case 'email':
+             let email = event.target.getElementsByClassName("contact_info");
+             tableConfig['email'] = email && email.length && email[0].title;
+             break;
+           case 'phone':
+             tableConfig['phone'] = event.target.innerText;
+             break;
+           case 'clientMemId':
+             tableConfig['clientMemId'] = event.target.innerText;
+             break;
+           case 'appMemberId':
+             tableConfig['appMemberId'] = event.target.innerText;
+         }
+     }
+     var target = event.target;
+     if (target.tagName == 'TD' || target.tagName == 'TR' || target.tagName == 'DIV') {    
+       document.getElementById('light_box_table').innerHTML = markup(tableConfig) || "";
+       localStorage.setItem('userInfo', JSON.stringify(tableConfig));
+       let sendButton = document.getElementById('send-details');
+       if(sendButton) {
+        sendButton.onclick = function() {
+          doApiCall();
         }
-    }
-    var target = event.target;
-    if (target.tagName == 'TD' || target.tagName == 'TR') {    
-      document.getElementById('light_box_table').innerHTML = markup(tableConfig);
-      localStorage.setItem('userInfo', JSON.stringify(tableConfig));
-      document.getElementById('send-details').onclick = function() {
-        doApiCall();
-      }
-    }
-  }
-}
+       }
+     }
+   }
+}, false);
